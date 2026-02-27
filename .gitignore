@@ -1,0 +1,27 @@
+# Python virtual environment
+backend/Lib/
+backend/Scripts/
+backend/Include/
+backend/share/
+backend/pyvenv.cfg
+__pycache__/
+*.pyc
+
+# Sensitive files
+credentials.json
+token.json
+accounts.json
+*.env
+.env.*
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/
