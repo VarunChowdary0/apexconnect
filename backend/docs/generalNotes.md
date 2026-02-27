@@ -43,3 +43,13 @@
 - Drafts API — create/schedule drafts before sending
 - Rate limits — Gmail API has per-user and per-project quotas
 - Explore other providers (Outlook/Microsoft Graph API, SMTP/IMAP) before designing the abstraction layer
+
+
+---------------------
+# Providers
+
+- Google (largest user base) -> Gmail API -> Fallback to SMTP/IMAP
+- Microsoft Outlook (Second largest, enterprise market
+) -> Graph API -> Fallback to SMTP/IMAP
+- SMTP/IMAP	(Works with any email provider)
+- SendGrid/SES	()
