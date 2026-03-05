@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Database Schema - ER Diagram</title>
+  <link href="https://cdn.jsdelivr.net/npm/reactflow@11.11.4/dist/style.css" rel="stylesheet" />
+  <script type="importmap">
+  {
+    "imports": {
+      "react": "https://esm.sh/react@18.3.1",
+      "react/": "https://esm.sh/react@18.3.1/",
+      "react-dom": "https://esm.sh/react-dom@18.3.1",
+      "react-dom/": "https://esm.sh/react-dom@18.3.1/",
+      "reactflow": "https://esm.sh/reactflow@11.11.4?external=react,react-dom",
+      "htm": "https://esm.sh/htm@3.1.1"
+    }
+  }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body, #root { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0f1117; color: #e1e4e8; }
+
+    .react-flow__background { background: #0f1117 !important; }
+    .react-flow__minimap { background: #161b22 !important; border: 1px solid #30363d !important; border-radius: 8px !important; }
+    .react-flow__controls { border-radius: 8px !important; overflow: hidden; border: 1px solid #30363d !important; }
+    .react-flow__controls button { background: #161b22 !important; color: #e1e4e8 !important; border-bottom: 1px solid #30363d !important; }
+    .react-flow__controls button:hover { background: #1f2937 !important; }
+    .react-flow__controls button svg { fill: #e1e4e8 !important; }
+
+    .table-node {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      min-width: 230px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .table-node:hover {
+      border-color: #58a6ff;
+      box-shadow: 0 4px 32px rgba(88,166,255,0.15);
+    }
+    .table-header {
+      padding: 9px 14px;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 10px 10px 0 0;
+    }
+    .table-header .icon {
+      width: 18px; height: 18px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+    }
+    .table-columns { padding: 2px 0; }
+    .table-column {
+      display: flex;
+      align-items: center;
+      padding: 4px 12px;
+      font-size: 11.5px;
+      gap: 6px;
+      border-bottom: 1px solid #21262d;
+      position: relative;
+    }
+    .table-column:last-child { border-bottom: none; border-radius: 0 0 10px 10px; }
+    .table-column:hover { background: #1c2333; }
+
+    .col-badge {
+      font-size: 8px;
+      font-weight: 700;
+      padding: 1px 4px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+    .badge-pk { background: #f0883e22; color: #f0883e; border: 1px solid #f0883e44; }
+    .badge-fk { background: #a371f722; color: #a371f7; border: 1px solid #a371f744; }
+    .badge-uq { background: #3fb95022; color: #3fb950; border: 1px solid #3fb95044; }
+
+    .col-name { color: #e1e4e8; font-weight: 500; flex: 1; }
+    .col-type { color: #8b949e; font-size: 10px; font-family: 'Cascadia Code', 'Fira Code', monospace; flex-shrink: 0; }
+
+    .react-flow__edge-path { stroke-width: 1.5 !important; }
+    .react-flow__node { transition: opacity 0.3s ease; }
+    .react-flow__edge { transition: opacity 0.3s ease; }
+
+    .header-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+      background: #161b22ee;
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #30363d;
+      padding: 12px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-bar h1 {
+      font-size: 16px; font-weight: 700; color: #e1e4e8;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .header-bar h1 .accent { color: #58a6ff; }
+    .header-bar .stats {
+      display: flex; gap: 16px; font-size: 12px; color: #8b949e;
+    }
+    .header-bar .stats .stat-val { color: #58a6ff; font-weight: 600; }
+
+    .legend {
+      position: fixed; bottom: 16px; left: 16px; z-index: 10;
+      background: #161b22ee;
+      backdrop-filter: blur(12px);
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex; gap: 10px; flex-wrap: wrap;
+      font-size: 11px;
+      max-width: 700px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 5px; color: #8b949e; }
+    .legend-swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .legend-divider { width: 1px; height: 18px; background: #30363d; }
+
+    .save-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; }
+    .save-modal {
+      background: #161b22; border: 1px solid #30363d; border-radius: 12px;
+      width: 640px; max-height: 80vh; display: flex; flex-direction: column;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    }
+    .save-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; border-bottom: 1px solid #30363d;
+    }
+    .save-modal-header h2 { font-size: 14px; color: #e1e4e8; font-weight: 600; }
+    .save-modal-body { padding: 14px 18px; overflow-y: auto; flex: 1; }
+    .save-modal-body pre {
+      background: #0d1117; border: 1px solid #21262d; border-radius: 8px;
+      padding: 12px; font-size: 11px; color: #8b949e; overflow-x: auto;
+      font-family: 'Cascadia Code', 'Fira Code', monospace; line-height: 1.5;
+      white-space: pre; max-height: 50vh;
+    }
+    .save-modal-footer { display: flex; gap: 8px; justify-content: flex-end; padding: 14px 18px; border-top: 1px solid #30363d; }
+    .btn-copy, .btn-close-modal {
+      padding: 7px 16px; border-radius: 6px; font-size: 12px; font-weight: 600;
+      cursor: pointer; border: 1px solid #30363d;
+    }
+    .btn-copy { background: #238636; color: #fff; border-color: #238636; }
+    .btn-copy:hover { background: #2ea043; }
+    .btn-close-modal { background: #21262d; color: #e1e4e8; }
+    .btn-close-modal:hover { background: #30363d; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module">
+    import React, { useMemo, memo, useCallback, useRef, useState } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import {
+      ReactFlow, Background, Controls, MiniMap,
+      useNodesState, useEdgesState,
+      Handle, Position, MarkerType, BackgroundVariant
+    } from 'reactflow';
+    import htm from 'htm';
+
+    const html = htm.bind(React.createElement);
+
+    // ==================== SCHEMA DEFINITION ====================
+
+    const SCHEMA = [
+      // ===== 1. User & Workspace (blue) =====
+      { name: 'users', color: '#3b82f6', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'first_name', type: 'VARCHAR(100)' },
+        { name: 'last_name', type: 'VARCHAR(100)' },
+        { name: 'email', type: 'VARCHAR(255)', unique: true },
+        { name: 'password_hash', type: 'VARCHAR(255)' },
+        { name: 'plan', type: 'VARCHAR(50)' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+        { name: 'updated_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'workspaces', color: '#3b82f6', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'owner_user_id', type: 'UUID', fk: true, fkRef: 'users.id' },
+        { name: 'name', type: 'VARCHAR(100)' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'workspace_members', color: '#3b82f6', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'workspace_id', type: 'UUID', fk: true, fkRef: 'workspaces.id' },
+        { name: 'user_id', type: 'UUID', fk: true, fkRef: 'users.id' },
+        { name: 'role', type: 'ENUM' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'workspace_settings', color: '#3b82f6', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'workspace_id', type: 'UUID', fk: true, fkRef: 'workspaces.id' },
+        { name: 'default_daily_limit', type: 'INT' },
+        { name: 'warmup_enabled', type: 'BOOLEAN' },
+        { name: 'verification_required', type: 'BOOLEAN' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+        { name: 'updated_at', type: 'TIMESTAMP' },
+      ]},
+
+      // ===== 2. Inbox System (teal) =====
+      { name: 'inboxes', color: '#14b8a6', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'workspace_id', type: 'UUID', fk: true, fkRef: 'workspaces.id' },
+        { name: 'email', type: 'VARCHAR(255)' },
+        { name: 'provider', type: 'ENUM' },
+        { name: 'auth_type', type: 'ENUM' },
+        { name: 'access_token', type: 'TEXT' },
+        { name: 'refresh_token', type: 'TEXT' },
+        { name: 'token_expiry', type: 'TIMESTAMP' },
+        { name: 'smtp_host', type: 'VARCHAR(255)' },
+        { name: 'smtp_port', type: 'INT' },
+        { name: 'smtp_username', type: 'VARCHAR(255)' },
+        { name: 'smtp_password', type: 'VARCHAR(255)' },
+        { name: 'daily_limit', type: 'INT' },
+        { name: 'hourly_limit', type: 'INT' },
+        { name: 'sent_today', type: 'INT' },
+        { name: 'warmup_enabled', type: 'BOOLEAN' },
+        { name: 'is_active', type: 'BOOLEAN' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+        { name: 'updated_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'inbox_send_stats', color: '#14b8a6', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'inbox_id', type: 'UUID', fk: true, fkRef: 'inboxes.id' },
+        { name: 'sent_today', type: 'INT' },
+        { name: 'sent_this_hour', type: 'INT' },
+        { name: 'updated_at', type: 'TIMESTAMP' },
+      ]},
+
+      // ===== 3. Campaign System (purple) =====
+      { name: 'campaigns', color: '#8b5cf6', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'workspace_id', type: 'UUID', fk: true, fkRef: 'workspaces.id' },
+        { name: 'name', type: 'VARCHAR(200)' },
+        { name: 'description', type: 'TEXT' },
+        { name: 'status', type: 'ENUM' },
+        { name: 'daily_send_limit', type: 'INT' },
+        { name: 'schedule_start_time', type: 'TIME' },
+        { name: 'schedule_end_time', type: 'TIME' },
+        { name: 'timezone', type: 'VARCHAR(50)' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+        { name: 'updated_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'campaign_steps', color: '#8b5cf6', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'campaign_id', type: 'UUID', fk: true, fkRef: 'campaigns.id' },
+        { name: 'step_number', type: 'INT' },
+        { name: 'delay_days', type: 'INT' },
+        { name: 'subject_template', type: 'TEXT' },
+        { name: 'body_template', type: 'TEXT' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'campaign_inboxes', color: '#8b5cf6', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'campaign_id', type: 'UUID', fk: true, fkRef: 'campaigns.id' },
+        { name: 'inbox_id', type: 'UUID', fk: true, fkRef: 'inboxes.id' },
+        { name: 'daily_limit', type: 'INT' },
+        { name: 'sent_today', type: 'INT' },
+        { name: 'is_active', type: 'BOOLEAN' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+
+      // ===== 4. Lead System (green) =====
+      { name: 'leads', color: '#22c55e', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'workspace_id', type: 'UUID', fk: true, fkRef: 'workspaces.id' },
+        { name: 'email', type: 'VARCHAR(255)', unique: true },
+        { name: 'first_name', type: 'VARCHAR(100)' },
+        { name: 'last_name', type: 'VARCHAR(100)' },
+        { name: 'company', type: 'VARCHAR(200)' },
+        { name: 'title', type: 'VARCHAR(200)' },
+        { name: 'phone', type: 'VARCHAR(50)' },
+        { name: 'website', type: 'VARCHAR(255)' },
+        { name: 'email_status', type: 'ENUM' },
+        { name: 'last_verified_at', type: 'TIMESTAMP' },
+        { name: 'verification_method', type: 'VARCHAR(50)' },
+        { name: 'additional_info', type: 'JSONB' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+        { name: 'updated_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'lead_lists', color: '#22c55e', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'workspace_id', type: 'UUID', fk: true, fkRef: 'workspaces.id' },
+        { name: 'name', type: 'VARCHAR(100)' },
+        { name: 'categories', type: 'VARCHAR(100)' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'lead_list_members', color: '#22c55e', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'list_id', type: 'UUID', fk: true, fkRef: 'lead_lists.id' },
+        { name: 'lead_id', type: 'UUID', fk: true, fkRef: 'leads.id' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'campaign_leads', color: '#22c55e', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'campaign_id', type: 'UUID', fk: true, fkRef: 'campaigns.id' },
+        { name: 'lead_id', type: 'UUID', fk: true, fkRef: 'leads.id' },
+        { name: 'status', type: 'ENUM' },
+        { name: 'current_step', type: 'INT' },
+        { name: 'next_contact_at', type: 'TIMESTAMP' },
+        { name: 'last_contacted_at', type: 'TIMESTAMP' },
+        { name: 'reply_received', type: 'BOOLEAN' },
+        { name: 'bounce_detected', type: 'BOOLEAN' },
+        { name: 'unsubscribe_detected', type: 'BOOLEAN' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+        { name: 'updated_at', type: 'TIMESTAMP' },
+      ]},
+
+      // ===== 5. Email Pipeline (orange) =====
+      { name: 'scheduled_emails', color: '#f97316', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'campaign_id', type: 'UUID', fk: true, fkRef: 'campaigns.id' },
+        { name: 'lead_id', type: 'UUID', fk: true, fkRef: 'leads.id' },
+        { name: 'inbox_id', type: 'UUID', fk: true, fkRef: 'inboxes.id' },
+        { name: 'campaign_step_id', type: 'UUID', fk: true, fkRef: 'campaign_steps.id' },
+        { name: 'scheduled_at', type: 'TIMESTAMP' },
+        { name: 'status', type: 'ENUM' },
+        { name: 'retry_count', type: 'INT' },
+        { name: 'queued_at', type: 'TIMESTAMP' },
+        { name: 'sent_at', type: 'TIMESTAMP' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'email_threads', color: '#f97316', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'lead_id', type: 'UUID', fk: true, fkRef: 'leads.id' },
+        { name: 'campaign_id', type: 'UUID', fk: true, fkRef: 'campaigns.id' },
+        { name: 'provider_thread_id', type: 'VARCHAR(255)' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'emails', color: '#f97316', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'idempotency_key', type: 'UUID' },
+        { name: 'thread_id', type: 'UUID', fk: true, fkRef: 'email_threads.id' },
+        { name: 'inbox_id', type: 'UUID', fk: true, fkRef: 'inboxes.id' },
+        { name: 'campaign_id', type: 'UUID', fk: true, fkRef: 'campaigns.id' },
+        { name: 'lead_id', type: 'UUID', fk: true, fkRef: 'leads.id' },
+        { name: 'provider_message_id', type: 'VARCHAR(255)' },
+        { name: 'direction', type: 'ENUM' },
+        { name: 'subject', type: 'VARCHAR(500)' },
+        { name: 'from_email', type: 'VARCHAR(255)' },
+        { name: 'to_email', type: 'VARCHAR(255)' },
+        { name: 'cc', type: 'TEXT' },
+        { name: 'bcc', type: 'TEXT' },
+        { name: 'body_text', type: 'TEXT' },
+        { name: 'body_html', type: 'TEXT' },
+        { name: 'sent_at', type: 'TIMESTAMP' },
+        { name: 'received_at', type: 'TIMESTAMP' },
+        { name: 'is_warmup', type: 'BOOLEAN' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'email_events', color: '#f97316', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'email_id', type: 'UUID', fk: true, fkRef: 'emails.id' },
+        { name: 'event_type', type: 'ENUM' },
+        { name: 'metadata', type: 'JSONB' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+
+      // ===== 6. Bounce & Deliverability (red) =====
+      { name: 'bounce_events', color: '#ef4444', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'email_id', type: 'UUID', fk: true, fkRef: 'emails.id' },
+        { name: 'bounce_type', type: 'ENUM' },
+        { name: 'smtp_code', type: 'VARCHAR(10)' },
+        { name: 'bounce_reason', type: 'TEXT' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'unsubscribes', color: '#ef4444', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'lead_id', type: 'UUID', fk: true, fkRef: 'leads.id' },
+        { name: 'campaign_id', type: 'UUID', fk: true, fkRef: 'campaigns.id' },
+        { name: 'reason', type: 'TEXT' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+
+      // ===== 7. Warmup System (amber) =====
+      { name: 'warmup_profiles', color: '#f59e0b', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'inbox_id', type: 'UUID', fk: true, fkRef: 'inboxes.id' },
+        { name: 'daily_limit', type: 'INT' },
+        { name: 'current_volume', type: 'INT' },
+        { name: 'reply_rate', type: 'DECIMAL' },
+        { name: 'read_rate', type: 'DECIMAL' },
+        { name: 'is_active', type: 'BOOLEAN' },
+        { name: 'started_at', type: 'TIMESTAMP' },
+        { name: 'updated_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'warmup_threads', color: '#f59e0b', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'sender_inbox_id', type: 'UUID', fk: true, fkRef: 'inboxes.id' },
+        { name: 'receiver_inbox_id', type: 'UUID', fk: true, fkRef: 'inboxes.id' },
+        { name: 'subject', type: 'VARCHAR(255)' },
+        { name: 'thread_id', type: 'VARCHAR(255)' },
+        { name: 'status', type: 'ENUM' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'warmup_messages', color: '#f59e0b', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'thread_id', type: 'UUID', fk: true, fkRef: 'warmup_threads.id' },
+        { name: 'from_inbox_id', type: 'UUID', fk: true, fkRef: 'inboxes.id' },
+        { name: 'to_inbox_id', type: 'UUID', fk: true, fkRef: 'inboxes.id' },
+        { name: 'message_id', type: 'VARCHAR(255)' },
+        { name: 'scheduled_at', type: 'TIMESTAMP' },
+        { name: 'sent_at', type: 'TIMESTAMP' },
+        { name: 'is_reply', type: 'BOOLEAN' },
+        { name: 'status', type: 'ENUM' },
+      ]},
+      { name: 'warmup_actions', color: '#f59e0b', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'warmup_message_id', type: 'UUID', fk: true, fkRef: 'warmup_messages.id' },
+        { name: 'action_type', type: 'ENUM' },
+        { name: 'executed_at', type: 'TIMESTAMP' },
+      ]},
+
+      // ===== 8. Verification & Domain (cyan) =====
+      { name: 'verification_inboxes', color: '#06b6d4', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'email', type: 'VARCHAR(255)' },
+        { name: 'provider', type: 'VARCHAR(50)' },
+        { name: 'daily_limit', type: 'INT' },
+        { name: 'sent_today', type: 'INT' },
+        { name: 'bounce_rate', type: 'DECIMAL' },
+        { name: 'health_score', type: 'DECIMAL' },
+        { name: 'is_active', type: 'BOOLEAN' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'lead_verification_logs', color: '#06b6d4', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'lead_id', type: 'UUID', fk: true, fkRef: 'leads.id' },
+        { name: 'verification_inbox_id', type: 'UUID', fk: true, fkRef: 'verification_inboxes.id' },
+        { name: 'result', type: 'ENUM' },
+        { name: 'method', type: 'ENUM' },
+        { name: 'checked_at', type: 'TIMESTAMP' },
+        { name: 'raw_response', type: 'TEXT' },
+      ]},
+
+      // ===== 9. Domain Intelligence (cyan) =====
+      { name: 'email_domains', color: '#06b6d4', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'domain', type: 'VARCHAR(255)', unique: true },
+        { name: 'is_catchall', type: 'BOOLEAN' },
+        { name: 'mx_provider', type: 'VARCHAR(100)' },
+        { name: 'reputation_score', type: 'DECIMAL' },
+        { name: 'last_checked_at', type: 'TIMESTAMP' },
+      ]},
+
+      // ===== 10. Lead Acquisition Pipeline (rose) =====
+      { name: 'scrape_campaigns', color: '#ec4899', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'workspace_id', type: 'UUID', fk: true, fkRef: 'workspaces.id' },
+        { name: 'name', type: 'VARCHAR(200)' },
+        { name: 'description', type: 'TEXT' },
+        { name: 'status', type: 'ENUM' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+        { name: 'updated_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'scrape_sources', color: '#ec4899', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'workspace_id', type: 'UUID', fk: true, fkRef: 'workspaces.id' },
+        { name: 'platform', type: 'ENUM' },
+        { name: 'base_url', type: 'VARCHAR(255)' },
+        { name: 'api_key', type: 'TEXT' },
+        { name: 'is_active', type: 'BOOLEAN' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+        { name: 'updated_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'scrape_jobs', color: '#ec4899', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'campaign_id', type: 'UUID', fk: true, fkRef: 'scrape_campaigns.id' },
+        { name: 'source_id', type: 'UUID', fk: true, fkRef: 'scrape_sources.id' },
+        { name: 'name', type: 'VARCHAR(200)' },
+        { name: 'role_filter', type: 'VARCHAR(200)' },
+        { name: 'industry_filter', type: 'VARCHAR(200)' },
+        { name: 'location_filter', type: 'VARCHAR(200)' },
+        { name: 'frequency', type: 'ENUM' },
+        { name: 'status', type: 'ENUM' },
+        { name: 'next_run_at', type: 'TIMESTAMP' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+        { name: 'updated_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'scrape_runs', color: '#ec4899', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'scrape_job_id', type: 'UUID', fk: true, fkRef: 'scrape_jobs.id' },
+        { name: 'status', type: 'ENUM' },
+        { name: 'profiles_found', type: 'INT' },
+        { name: 'started_at', type: 'TIMESTAMP' },
+        { name: 'completed_at', type: 'TIMESTAMP' },
+        { name: 'error_message', type: 'TEXT' },
+      ]},
+      { name: 'scraped_profiles', color: '#ec4899', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'run_id', type: 'UUID', fk: true, fkRef: 'scrape_runs.id' },
+        { name: 'platform_id', type: 'VARCHAR(255)' },
+        { name: 'job_title', type: 'VARCHAR(300)' },
+        { name: 'company_name', type: 'VARCHAR(200)' },
+        { name: 'location', type: 'VARCHAR(200)' },
+        { name: 'industry', type: 'VARCHAR(200)' },
+        { name: 'job_url', type: 'VARCHAR(500)' },
+        { name: 'raw_data', type: 'JSONB' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'enrichment_jobs', color: '#ec4899', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'workspace_id', type: 'UUID', fk: true, fkRef: 'workspaces.id' },
+        { name: 'scraped_profile_id', type: 'UUID', fk: true, fkRef: 'scraped_profiles.id' },
+        { name: 'provider', type: 'ENUM' },
+        { name: 'status', type: 'ENUM' },
+        { name: 'requested_at', type: 'TIMESTAMP' },
+        { name: 'completed_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'enriched_contacts', color: '#ec4899', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'enrichment_job_id', type: 'UUID', fk: true, fkRef: 'enrichment_jobs.id' },
+        { name: 'workspace_id', type: 'UUID', fk: true, fkRef: 'workspaces.id' },
+        { name: 'email', type: 'VARCHAR(255)' },
+        { name: 'first_name', type: 'VARCHAR(100)' },
+        { name: 'last_name', type: 'VARCHAR(100)' },
+        { name: 'company', type: 'VARCHAR(200)' },
+        { name: 'title', type: 'VARCHAR(200)' },
+        { name: 'phone', type: 'VARCHAR(50)' },
+        { name: 'linkedin_url', type: 'VARCHAR(500)' },
+        { name: 'experience', type: 'JSONB' },
+        { name: 'raw_response', type: 'JSONB' },
+        { name: 'created_at', type: 'TIMESTAMP' },
+      ]},
+      { name: 'contact_verifications', color: '#ec4899', columns: [
+        { name: 'id', type: 'UUID', pk: true },
+        { name: 'enriched_contact_id', type: 'UUID', fk: true, fkRef: 'enriched_contacts.id' },
+        { name: 'verification_inbox_id', type: 'UUID', fk: true, fkRef: 'verification_inboxes.id' },
+        { name: 'result', type: 'ENUM' },
+        { name: 'bounce_type', type: 'ENUM' },
+        { name: 'checked_at', type: 'TIMESTAMP' },
+        { name: 'lead_id', type: 'UUID', fk: true, fkRef: 'leads.id' },
+      ]},
+    ];
+
+    // ==================== MANUAL LAYOUT (grouped by subsystem) ====================
+    //
+    // Col 0 (x=0):   User & Workspace → Warmup chain
+    // Col 1 (x=300): Inbox → Email pipeline
+    // Col 2 (x=600): Campaign → Bounce/Tracking
+    // Col 3 (x=900): Lead → Verification & Domain
+    //
+
+    const POSITIONS = {
+      'users':                  { x: -2920, y: -387 },
+      'workspaces':             { x: -2523, y: -699 },
+      'workspace_members':      { x: -1796, y: 251 },
+      'workspace_settings':     { x: -1685, y: 13 },
+      'inboxes':                { x: -1421, y: -169 },
+      'inbox_send_stats':       { x: -1044, y: 325 },
+      'campaigns':              { x: -1644, y: -936 },
+      'campaign_steps':         { x: -1018, y: -715 },
+      'campaign_inboxes':       { x: -694, y: -1048 },
+      'leads':                  { x: -1642, y: -557 },
+      'lead_lists':             { x: -1931, y: -1110 },
+      'lead_list_members':      { x: -1214, y: -1215 },
+      'campaign_leads':         { x: -195, y: -264 },
+      'scheduled_emails':       { x: -255, y: -753 },
+      'email_threads':          { x: -600, y: -1307 },
+      'emails':                 { x: 106, y: -1131 },
+      'email_events':           { x: 588, y: -888 },
+      'bounce_events':          { x: 453, y: -536 },
+      'unsubscribes':           { x: 78, y: -385 },
+      'warmup_profiles':        { x: -1032, y: -15 },
+      'warmup_threads':         { x: -766, y: -166 },
+      'warmup_messages':        { x: -459, y: 55 },
+      'warmup_actions':         { x: -115, y: 276 },
+      'verification_inboxes':   { x: -700, y: 391 },
+      'lead_verification_logs': { x: 151, y: 113 },
+      'email_domains':          { x: 314, y: -146 },
+      'scrape_campaigns':       { x: -2522, y: 177 },
+      'scrape_sources':         { x: -2301, y: -60 },
+      'scrape_jobs':            { x: -2004, y: 381 },
+      'scrape_runs':            { x: -1689, y: 465 },
+      'scraped_profiles':       { x: -1385, y: 583 },
+      'enrichment_jobs':        { x: -1056, y: 551 },
+      'enriched_contacts':      { x: -724, y: 747 },
+      'contact_verifications':  { x: -204, y: 546 },
+    };
+
+    function buildNodesAndEdges(schema) {
+      const nodes = schema.map((table) => ({
+        id: table.name,
+        type: 'tableNode',
+        position: POSITIONS[table.name] || { x: 0, y: 0 },
+        data: table,
+      }));
+
+      const edges = [];
+      schema.forEach((table) => {
+        table.columns.forEach((col) => {
+          if (col.fk && col.fkRef) {
+            const [pkTable, pkCol] = col.fkRef.split('.');
+            // PK (right) -------> FK (left)
+            edges.push({
+              id: pkTable + '.' + pkCol + '->' + table.name + '.' + col.name,
+              source: pkTable,
+              target: table.name,
+              sourceHandle: pkTable + '-' + pkCol + '-right',
+              targetHandle: table.name + '-' + col.name + '-left',
+              type: 'default',
+              animated: true,
+              style: { stroke: '#a371f7', strokeWidth: 1.5 },
+              markerEnd: { type: MarkerType.ArrowClosed, color: '#a371f7', width: 14, height: 14 },
+            });
+          }
+        });
+      });
+
+      return { nodes, edges };
+    }
+
+    // ==================== TABLE NODE COMPONENT ====================
+    const hStyle = { background: '#a371f7', width: 7, height: 7, border: '2px solid #161b22' };
+
+    const TableNode = memo(function TableNode({ data }) {
+      return html`
+        <div className="table-node">
+          <div className="table-header" style=${{ background: data.color || '#1f6feb' }}>
+            <span className="icon">T</span>
+            ${data.name}
+          </div>
+          <div className="table-columns">
+            ${data.columns.map((col) => html`
+              <div className="table-column" key=${col.name}>
+                <${Handle}
+                  type="target"
+                  position=${Position.Left}
+                  id=${data.name + '-' + col.name + '-left'}
+                  style=${hStyle}
+                />
+                ${col.pk && html`<span className="col-badge badge-pk">PK</span>`}
+                ${col.fk && html`<span className="col-badge badge-fk">FK</span>`}
+                ${col.unique && html`<span className="col-badge badge-uq">UQ</span>`}
+                <span className="col-name">${col.name}</span>
+                <span className="col-type">${col.type}</span>
+                <${Handle}
+                  type="source"
+                  position=${Position.Right}
+                  id=${data.name + '-' + col.name + '-right'}
+                  style=${hStyle}
+                />
+              </div>
+            `)}
+          </div>
+        </div>
+      `;
+    });
+
+    const nodeTypes = { tableNode: TableNode };
+
+    // ==================== MAIN APP ====================
+    function App() {
+      const { nodes: initNodes, edges: initEdges } = useMemo(() => buildNodesAndEdges(SCHEMA), []);
+      const [nodes, setNodes, onNodesChange] = useNodesState(initNodes);
+      const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
+      const nodesRef = useRef(nodes);
+      nodesRef.current = nodes;
+
+      const selectedRef = useRef(null);
+
+      const resetHighlight = useCallback(() => {
+        selectedRef.current = null;
+        setEdges(eds => eds.map(e => ({
+          ...e,
+          style: { stroke: '#a371f7', strokeWidth: 1.5 },
+          animated: true,
+          markerEnd: { type: MarkerType.ArrowClosed, color: '#a371f7', width: 14, height: 14 },
+        })));
+        setNodes(nds => nds.map(n => ({ ...n, style: undefined })));
+      }, []);
+
+      const onNodeClick = useCallback((_, node) => {
+        if (selectedRef.current === node.id) { resetHighlight(); return; }
+        selectedRef.current = node.id;
+        const nid = node.id;
+        const connEdges = new Set();
+        const connNodes = new Set([nid]);
+        initEdges.forEach(e => {
+          if (e.source === nid || e.target === nid) {
+            connEdges.add(e.id);
+            connNodes.add(e.source);
+            connNodes.add(e.target);
+          }
+        });
+        setEdges(eds => eds.map(e => connEdges.has(e.id)
+          ? { ...e, style: { stroke: '#58a6ff', strokeWidth: 2.5 }, animated: true,
+              markerEnd: { type: MarkerType.ArrowClosed, color: '#58a6ff', width: 14, height: 14 }, zIndex: 10 }
+          : { ...e, style: { stroke: '#a371f7', strokeWidth: 1.5, opacity: 0.15 }, animated: false,
+              markerEnd: { type: MarkerType.ArrowClosed, color: '#a371f7', width: 14, height: 14 } }
+        ));
+        setNodes(nds => nds.map(n => ({
+          ...n, style: connNodes.has(n.id) ? { opacity: 1 } : { opacity: 0.25 },
+        })));
+      }, [initEdges, resetHighlight]);
+
+      const totalCols = SCHEMA.reduce((sum, t) => sum + t.columns.length, 0);
+      const totalRelations = initEdges.length;
+
+      const [saveData, setSaveData] = useState(null);
+      const [copied, setCopied] = useState(false);
+
+      const handleSave = useCallback(() => {
+        const current = nodesRef.current;
+        const maxLen = Math.max(...current.map((n) => n.id.length));
+        const lines = current.map((n) => {
+          const pad = ' '.repeat(maxLen - n.id.length);
+          return "      '" + n.id + "':" + pad + " { x: " + Math.round(n.position.x) + ", y: " + Math.round(n.position.y) + " },";
+        });
+        const posBlock = "    const POSITIONS = {\n" + lines.join('\n') + "\n    };";
+        console.log('=== GRAPH POSITIONS ===\n' + posBlock);
+        setSaveData(posBlock);
+        setCopied(false);
+      }, []);
+
+      const handleCopy = useCallback(() => {
+        if (!saveData) return;
+        navigator.clipboard.writeText(saveData).then(() => setCopied(true));
+      }, [saveData]);
+
+      return html`
+        <div style=${{ width: '100%', height: '100%' }}>
+          <div className="header-bar">
+            <h1>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" strokeWidth="2">
+                <ellipse cx="12" cy="6" rx="8" ry="3" />
+                <path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6" />
+                <path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6" />
+              </svg>
+              <span>ApexConnect <span className="accent">Schema</span></span>
+            </h1>
+            <div className="stats">
+              <span><span className="stat-val">${SCHEMA.length}</span> tables</span>
+              <span><span className="stat-val">${totalCols}</span> columns</span>
+              <span><span className="stat-val">${totalRelations}</span> relations</span>
+              <button onClick=${handleSave} style=${{
+                background: '#238636', color: '#fff', border: 'none',
+                padding: '6px 14px', borderRadius: '6px', fontSize: '12px',
+                fontWeight: 600, cursor: 'pointer', marginLeft: '8px',
+              }}>Save</button>
+            </div>
+          </div>
+
+          <${ReactFlow}
+            nodes=${nodes}
+            edges=${edges}
+            onNodesChange=${onNodesChange}
+            onEdgesChange=${onEdgesChange}
+            onNodeClick=${onNodeClick}
+            onPaneClick=${resetHighlight}
+            nodeTypes=${nodeTypes}
+            fitView=${true}
+            fitViewOptions=${{ padding: 0.2 }}
+            minZoom=${0.1}
+            maxZoom=${2.5}
+            defaultEdgeOptions=${{ type: 'default' }}
+            proOptions=${{ hideAttribution: true }}
+          >
+            <${Background} variant=${BackgroundVariant.Dots} gap=${20} size=${1} color="#21262d" />
+            <${Controls} />
+            <${MiniMap}
+              nodeColor=${(n) => {
+                const t = SCHEMA.find(s => s.name === n.id);
+                return t ? t.color : '#1f6feb';
+              }}
+              maskColor="rgba(0,0,0,0.7)"
+              pannable=${true}
+              zoomable=${true}
+            />
+          </${ReactFlow}>
+
+          ${saveData && html`
+            <div className="save-overlay" onClick=${() => setSaveData(null)}>
+              <div className="save-modal" onClick=${(e) => e.stopPropagation()}>
+                <div className="save-modal-header">
+                  <h2>Node Positions</h2>
+                  <span style=${{ color: '#8b949e', fontSize: '11px' }}>Replace the POSITIONS block in schema.html</span>
+                </div>
+                <div className="save-modal-body">
+                  <pre>${saveData}</pre>
+                </div>
+                <div className="save-modal-footer">
+                  <button className="btn-close-modal" onClick=${() => setSaveData(null)}>Close</button>
+                  <button className="btn-copy" onClick=${handleCopy}>${copied ? 'Copied!' : 'Copy to Clipboard'}</button>
+                </div>
+              </div>
+            </div>
+          `}
+
+          <div className="legend">
+            <div className="legend-item"><span className="legend-swatch" style=${{ background: '#3b82f6' }}></span> User</div>
+            <div className="legend-item"><span className="legend-swatch" style=${{ background: '#14b8a6' }}></span> Inbox</div>
+            <div className="legend-item"><span className="legend-swatch" style=${{ background: '#8b5cf6' }}></span> Campaign</div>
+            <div className="legend-item"><span className="legend-swatch" style=${{ background: '#22c55e' }}></span> Lead</div>
+            <div className="legend-item"><span className="legend-swatch" style=${{ background: '#f97316' }}></span> Email</div>
+            <div className="legend-item"><span className="legend-swatch" style=${{ background: '#ef4444' }}></span> Bounce</div>
+            <div className="legend-item"><span className="legend-swatch" style=${{ background: '#f59e0b' }}></span> Warmup</div>
+            <div className="legend-item"><span className="legend-swatch" style=${{ background: '#06b6d4' }}></span> Verify</div>
+            <div className="legend-item"><span className="legend-swatch" style=${{ background: '#ec4899' }}></span> Acquisition</div>
+            <span className="legend-divider"></span>
+            <div className="legend-item"><span className="col-badge badge-pk">PK</span> Primary</div>
+            <div className="legend-item"><span className="col-badge badge-fk">FK</span> Foreign</div>
+            <div className="legend-item"><span className="col-badge badge-uq">UQ</span> Unique</div>
+          </div>
+        </div>
+      `;
+    }
+
+    createRoot(document.getElementById('root')).render(html`<${App} />`);
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+1. Scrape Job profiles from linkedin/Naukari/Indeed.
+2. Job filters [role, industry, location].
+3. Scheduling scraping frequency.
+4. We get Data
+5. Get people data from the Apollo.io
+6. We get the employee data.
+7. Get the employees expirence and data from Linkedin.
+8. Email bounce verification.
