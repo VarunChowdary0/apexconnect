@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client)",
+      "Bash(git init)",
+      "Bash(git add -A)",
+      "Bash(git reset HEAD)",
+      "Bash(git rm --cached -r backend/share/)",
+      "Bash(where gh)",
+      "Bash(git -C /c/Apexhire/apexconnect log --oneline -10)",
+      "Bash(xargs ls -lh)",
+      "Bash(cat /c/Apexhire/apexconnect/frontend/app/campaigns/[id]/page.tsx)",
+      "Bash(npx next build)",
+      "Bash(npm install react-day-picker)",
+      "Bash(connect/backend/Scripts/pip list)",
+      "Bash(connect/backend/Scripts/python -c \"import dotenv; print\\(''dotenv OK''\\)\")",
+      "Bash(connect/backend/Scripts/python -m ipykernel --version)",
+      "Bash(connect/backend/Scripts/python -m ipykernel install --user --name apexconnect --display-name \"ApexConnect \\(backend\\)\")"
+    ]
+  }
+}
